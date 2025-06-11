@@ -1,0 +1,8 @@
+updates:
+  - package-ecosystem: "golang"
+    directory: "node-dashboard/"
+    schedule:
+      - daily
+    allow:
+      - dependency-type: "all"
+        update-type: "all"

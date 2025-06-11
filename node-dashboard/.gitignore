@@ -1,0 +1,20 @@
+# Ignore go build and test files
+*.exe
+*.test
+*.prof
+*_test.go
+# Ignore IDEs and text editors
+*.sublime-project
+*.sublime-workspace
+*.vscode
+*.idea
+# Ignore node_modules
+node_modules
+# Ignore logs
+logs
+# Ignore Go modules
+go.mod
+go.sum
+# Ignore Go binaries
+bin/
+node-dashboard

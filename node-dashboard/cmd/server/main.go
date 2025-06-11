@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -46,7 +45,6 @@ func main() {
 
 	// Create node service
 	service := node.NewService(client, wsHub)
-	fmt.Printf("Service: %v\n", wsHub.GetLatestStats().BlockHeight)
 
 	// Start data collection in a goroutine
 	go service.Start(*updateInterval)

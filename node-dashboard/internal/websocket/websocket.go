@@ -53,11 +53,11 @@ func (h *Hub) HandleWebsocket(c *gin.Context) {
 	data, err := json.Marshal(h.latestStats)
 	h.statsMu.RUnlock()
 
-	log.Printf("Data: %v", data)
-
-	if err == nil {
-		ws.WriteMessage(websocket.TextMessage, data)
+	if err != nil {
+		log.Printf("Error writing message: %v", err)
+		return
 	}
+	ws.WriteMessage(websocket.TextMessage, data)
 
 	// Handle disconnection
 	for {
@@ -109,5 +109,9 @@ func (h *Hub) Broadcast() {
 func (h *Hub) GetLatestStats() models.NodeStats {
 	h.statsMu.RLock()
 	defer h.statsMu.RUnlock()
+	if h.latestStats.BlockHeight == 0 {
+		log.Print("No stats available")
+		return models.NodeStats{}
+	}
 	return h.latestStats
 }

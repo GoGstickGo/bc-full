@@ -69,24 +69,7 @@ func (s *Service) fetchNodeStats() {
 	if err != nil {
 		log.Printf("Error getting network info: %v", err)
 	} else {
-
 		nodeStats.Connections = networkInfo.Connections
-	}
-
-	// Get mempool info using GetRawMempoolVerbose
-	mempoolInfo, err := s.client.GetRawMempoolVerbose()
-	if err != nil {
-		log.Printf("Error getting mempool info: %v", err)
-	} else {
-		// Count the number of transactions in the mempool
-		nodeStats.MemPoolSize = len(mempoolInfo)
-
-		// Calculate total size of all transactions
-		var totalSize int32
-		for _, tx := range mempoolInfo {
-			totalSize += tx.Size
-		}
-		nodeStats.MemPoolBytes = totalSize
 	}
 
 	// Get network hashrate (using 120 blocks)
@@ -96,28 +79,6 @@ func (s *Service) fetchNodeStats() {
 	} else {
 		nodeStats.NetworkHashrate = hashrate
 	}
-
-	// Get mempool fee info - Using both ECONOMICAL and CONSERVATIVE modes
-	/*economicalMode := btcjson.EstimateModeEconomical
-	conservativeMode := btcjson.EstimateModeConservative
-
-	// Get economical fee estimate
-	economicalFeeInfo, err := s.client.EstimateSmartFee(2, &economicalMode)
-	if err != nil {
-		log.Printf("Error getting economical fee estimate: %v", err)
-	}
-
-	// Get conservative fee estimate
-	conservativeFeeInfo, err := s.client.EstimateSmartFee(2, &conservativeMode)
-	if err != nil {
-		log.Printf("Error getting conservative fee estimate: %v", err)
-	}
-
-	// Store both estimates
-	nodeStats.MempoolFeeInfo = map[string]interface{}{
-		"economical":   economicalFeeInfo,
-		"conservative": conservativeFeeInfo,
-	}*/
 
 	nodeStats.LastUpdated = time.Now().Format(time.RFC3339)
 

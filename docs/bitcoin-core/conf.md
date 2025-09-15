@@ -17,6 +17,25 @@ maxmempool=500
 # Initial Block Download Optimization
 blocksonly=1
 
+# STRICT SPAM/OP_RETURN FILTERING
+# Completely disable OP_RETURN data carrier transactions
+datacarrier=0
+# Set OP_RETURN size to 0 (redundant with datacarrier=0 but ensures strictness)
+datacarriersize=0
+# Reject non-standard transactions (helps filter unusual spam patterns)
+acceptnonstdtxn=0
+# Lower mempool expiry time to clear spam faster (24 hours instead of default 336)
+mempoolexpiry=24
+# Reduce maximum transaction size to limit large data embedding
+maxtxfee=0.1
+# Limit ancestor/descendant chains (reduces complex spam patterns)
+limitancestorcount=5
+limitdescendantcount=5
+limitancestorsize=50
+limitdescendantsize=50
+
+permitbaremultisig=0
+
 # Create an RPC user/password
 rpcuser=nodeadmin
 rpcpassword=${PASSWORD}
@@ -38,6 +57,14 @@ torcontrol=127.0.0.1:9051
 
 # Force all connections through Tor
 onlynet=onion
+
+# Connection limits to reduce resource usage
+maxconnections=40
+maxuploadtarget=1000
+
+# Ban nodes that send spam transactions
+banscore=10
+bantime=86400
 ```
 
 # Basic Settings (explain)

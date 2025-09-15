@@ -22,9 +22,9 @@ vet:
 	$(GO) vet ./...
 
 autossh:
-autossh -M 20000 -L ${RPCIP}:localhost:${RPCIP} -p ${SSHPORT} ${USER}@${HOST} -N -f
+ # autossh -M 20000 -L ${RPCIP}:localhost:${RPCIP} -p ${SSHPORT} ${USER}@${HOST} -N -f
 
 connect:
-	 ./node-dashboard -rpcuser=${USER}-rpcpass=${PW} -rpchost=localhost:${RPCIP} -listen=localhost:${HTTPSERVERIP}
+#	 ./node-dashboard -rpcuser=${USER}-rpcpass=${PW} -rpchost=localhost:${RPCIP} -listen=localhost:${HTTPSERVERIP}
 
 .PHONY: all build run clean test fmt vet connect autossh

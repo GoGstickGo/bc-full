@@ -70,6 +70,18 @@ func (s *Service) fetchNodeStats() {
 		log.Printf("Error getting network info: %v", err)
 	} else {
 		nodeStats.Connections = networkInfo.Connections
+
+		onionReachable := false
+		if networkInfo.Networks != nil {
+			for _, network := range networkInfo.Networks {
+				if network.Name == "onion" && network.Reachable {
+					onionReachable = true
+					break
+				}
+			}
+		}
+
+		nodeStats.OnionStatus = onionReachable
 	}
 
 	// Get network hashrate (using 120 blocks)

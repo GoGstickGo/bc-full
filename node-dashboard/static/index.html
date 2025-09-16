@@ -81,6 +81,13 @@
             font-size: 1.2rem;
             padding: 0.5rem 1rem;
         }
+        #onion-status-icon {
+            min-width: 24px;
+            text-align: center;
+        }
+        #onion-status-icon i {
+            cursor: help;
+        }
     </style>
 </head>
 <body>
@@ -138,6 +145,26 @@
                 </div>
             </div>
 
+            <!-- Onion Status -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div id="onion-icon-container" class="icon-container bg-secondary">
+                            <i class="fas fa-user-secret fa-2x" id="onion-icon"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="stat-label">Tor Network</div>
+                            <div class="d-flex align-items-center">
+                                <div id="onion-status" class="stat-value me-2">-</div>
+                                <div id="onion-status-icon">
+                                    <i class="fas fa-question-circle text-secondary fa-lg"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Size on Disk -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100">
@@ -152,8 +179,10 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Network Hashrate -->
+        <div class="row mt-4">
+            <!-- Network Hashrate (moved to its own row) -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100">
                     <div class="card-body d-flex align-items-center">
@@ -334,6 +363,30 @@
             
             console.log('Setting connections:', data.connections);
             document.getElementById('connections').innerText = data.connections || 'N/A';
+            
+            // Update onion status
+            console.log('Setting onion status:', data.onionStatus);
+            const onionElement = document.getElementById('onion-status');
+            const onionIconContainer = document.getElementById('onion-icon-container');
+            const onionIcon = document.getElementById('onion-icon');
+            const onionStatusIcon = document.getElementById('onion-status-icon');
+            
+            if (data.onionStatus === true) {
+                onionElement.innerText = 'Active';
+                onionIconContainer.className = 'icon-container bg-success-light';
+                onionIcon.className = 'fas fa-user-secret text-success fa-2x';
+                onionStatusIcon.innerHTML = '<i class="fas fa-check-circle text-success fa-lg" title="Tor network is reachable"></i>';
+            } else if (data.onionStatus === false) {
+                onionElement.innerText = 'Inactive';
+                onionIconContainer.className = 'icon-container bg-danger';
+                onionIcon.className = 'fas fa-user-secret text-white fa-2x';
+                onionStatusIcon.innerHTML = '<i class="fas fa-times-circle text-danger fa-lg" title="Tor network is not reachable"></i>';
+            } else {
+                onionElement.innerText = 'Unknown';
+                onionIconContainer.className = 'icon-container bg-secondary';
+                onionIcon.className = 'fas fa-user-secret text-white fa-2x';
+                onionStatusIcon.innerHTML = '<i class="fas fa-question-circle text-secondary fa-lg" title="Tor network status unknown"></i>';
+            }
             
             // Update size on disk
             console.log('Setting size on disk:', data.chainInfo?.size_on_disk);

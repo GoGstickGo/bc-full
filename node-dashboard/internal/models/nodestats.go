@@ -8,4 +8,5 @@ type NodeStats struct {
 	NetworkHashrate float64     `json:"networkHashrate"`
 	ChainInfo       interface{} `json:"chainInfo"`
 	LastUpdated     string      `json:"lastUpdated"`
+	OnionStatus     bool        `json:"onionStatus"`
 }

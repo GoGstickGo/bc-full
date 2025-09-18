@@ -70,6 +70,7 @@ func (s *Service) fetchNodeStats() {
 		log.Printf("Error getting network info: %v", err)
 	} else {
 		nodeStats.Connections = networkInfo.Connections
+		nodeStats.Version = networkInfo.Version
 
 		onionReachable := false
 		if networkInfo.Networks != nil {
@@ -90,6 +91,13 @@ func (s *Service) fetchNodeStats() {
 		log.Printf("Error getting network hashrate: %v", err)
 	} else {
 		nodeStats.NetworkHashrate = hashrate
+	}
+
+	balance, err := s.client.GetBalance("*")
+	if err != nil {
+		log.Printf("Error getting node info: %v", err)
+	} else {
+		nodeStats.Balance = balance.ToBTC()
 	}
 
 	nodeStats.LastUpdated = time.Now().Format(time.RFC3339)

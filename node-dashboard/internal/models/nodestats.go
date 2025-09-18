@@ -9,4 +9,6 @@ type NodeStats struct {
 	ChainInfo       interface{} `json:"chainInfo"`
 	LastUpdated     string      `json:"lastUpdated"`
 	OnionStatus     bool        `json:"onionStatus"`
+	Balance         float64     `json:"balance"`
+	Version         int32       `json:"version"`
 }

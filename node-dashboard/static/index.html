@@ -88,6 +88,16 @@
         #onion-status-icon i {
             cursor: help;
         }
+        .bg-bitcoin {
+            background-color: #f7931a;
+        }
+        #balance {
+            font-size: 1.4rem;
+        }
+        #version {
+            font-size: 1.4rem;
+            font-family: 'Courier New', monospace;
+        }
     </style>
 </head>
 <body>
@@ -182,7 +192,37 @@
         </div>
 
         <div class="row mt-4">
-            <!-- Network Hashrate (moved to its own row) -->
+            <!-- Balance -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="icon-container" style="background-color: #fff3cd;">
+                            <i class="fab fa-bitcoin text-warning fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="stat-label">Wallet Balance</div>
+                            <div id="balance" class="stat-value">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Version -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="icon-container bg-info-light">
+                            <i class="fas fa-code-branch text-info fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="stat-label">Node Version</div>
+                            <div id="version" class="stat-value">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Hashrate -->
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100">
                     <div class="card-body d-flex align-items-center">
@@ -309,6 +349,24 @@
             return (bytes / 1073741824).toFixed(2);
         }
 
+        function formatBalance(balance) {
+            if (balance === 0) return '0.00000000 BTC';
+            if (balance < 0.001) return balance.toFixed(8) + ' BTC';
+            if (balance < 1) return balance.toFixed(6) + ' BTC';
+            return balance.toFixed(4) + ' BTC';
+        }
+
+        function formatVersion(version) {
+            if (!version) return 'Unknown';
+            
+            // Bitcoin Core version format: e.g., 270100 = 27.1.0
+            const major = Math.floor(version / 10000);
+            const minor = Math.floor((version % 10000) / 100);
+            const patch = version % 100;
+            
+            return `${major}.${minor}.${patch}`;
+        }
+
         function connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const host = window.location.host;
@@ -366,22 +424,34 @@
             
             // Update onion status
             console.log('Setting onion status:', data.onionStatus);
+            console.log('Checking typo version:', data.onionStaus); // Check for typo
+            console.log('Onion status type:', typeof data.onionStatus);
+            
+            // Handle both correct spelling and typo temporarily
+            const onionStatusValue = data.onionStatus !== undefined ? data.onionStatus : data.onionStaus;
+            
+            console.log('Final onion status value:', onionStatusValue);
+            console.log('Onion status === true:', onionStatusValue === true);
+            
             const onionElement = document.getElementById('onion-status');
             const onionIconContainer = document.getElementById('onion-icon-container');
             const onionIcon = document.getElementById('onion-icon');
             const onionStatusIcon = document.getElementById('onion-status-icon');
             
-            if (data.onionStatus === true) {
+            if (onionStatusValue === true) {
+                console.log('Setting onion status to ACTIVE');
                 onionElement.innerText = 'Active';
                 onionIconContainer.className = 'icon-container bg-success-light';
                 onionIcon.className = 'fas fa-user-secret text-success fa-2x';
                 onionStatusIcon.innerHTML = '<i class="fas fa-check-circle text-success fa-lg" title="Tor network is reachable"></i>';
-            } else if (data.onionStatus === false) {
+            } else if (onionStatusValue === false) {
+                console.log('Setting onion status to INACTIVE');
                 onionElement.innerText = 'Inactive';
                 onionIconContainer.className = 'icon-container bg-danger';
                 onionIcon.className = 'fas fa-user-secret text-white fa-2x';
                 onionStatusIcon.innerHTML = '<i class="fas fa-times-circle text-danger fa-lg" title="Tor network is not reachable"></i>';
             } else {
+                console.log('Setting onion status to UNKNOWN, actual value:', onionStatusValue);
                 onionElement.innerText = 'Unknown';
                 onionIconContainer.className = 'icon-container bg-secondary';
                 onionIcon.className = 'fas fa-user-secret text-white fa-2x';
@@ -399,6 +469,24 @@
             
             console.log('Setting network hashrate:', data.networkHashrate);
             document.getElementById('network-hashrate').innerText = data.networkHashrate ? formatHashrate(data.networkHashrate) : 'N/A';
+            
+            // Update balance
+            console.log('Setting balance:', data.balance);
+            const balanceElement = document.getElementById('balance');
+            if (data.balance !== undefined && data.balance !== null) {
+                balanceElement.innerText = formatBalance(data.balance);
+            } else {
+                balanceElement.innerText = 'N/A';
+            }
+            
+            // Update version
+            console.log('Setting version:', data.version);
+            const versionElement = document.getElementById('version');
+            if (data.version !== undefined && data.version !== null) {
+                versionElement.innerText = formatVersion(data.version);
+            } else {
+                versionElement.innerText = 'N/A';
+            }
             
             // Update chain info
             console.log('Setting chain info:', data.chainInfo?.chain);

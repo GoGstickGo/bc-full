@@ -15,7 +15,7 @@ dbcache=4000
 maxmempool=500
 
 # Initial Block Download Optimization
-blocksonly=1
+blocksonly=0
 
 # STRICT SPAM/OP_RETURN FILTERING
 # Completely disable OP_RETURN data carrier transactions
@@ -27,10 +27,10 @@ acceptnonstdtxn=0
 # Lower mempool expiry time to clear spam faster (24 hours instead of default 336)
 mempoolexpiry=24
 # Reduce maximum transaction size to limit large data embedding
-maxtxfee=0.1
+maxtxfee=0.5
 # Limit ancestor/descendant chains (reduces complex spam patterns)
-limitancestorcount=5
-limitdescendantcount=5
+limitancestorcount=25
+limitdescendantcount=25
 limitancestorsize=50
 limitdescendantsize=50
 
@@ -95,8 +95,36 @@ Sets the maximum memory pool size to 500MB. The mempool stores unconfirmed trans
 
 ## Initial Block Download Optimization
 
-### blocksonly=1: 
+### blocksonly=0: 
+Full Node Daily Traffic:
+* Block data: ~150 MB/day (incoming)
+* Transaction relay: ~1.2 GB/day (bidirectional)
+* Address announcements: ~50 MB/day
+* Protocol overhead: ~100 MB/day
+Total: ~1.5 GB/day
+#### blocksonly=1: 
 During initial sync, only downloads blocks and not unconfirmed transactions. This significantly reduces bandwidth usage and speeds up the initial sync. You can set this to 0 after syncing is complete.
+Blocks-Only Node:
+*  Block data: ~150 MB/day (incoming)  
+* Transaction relay: 0 MB/day ❌
+* Address announcements: ~50 MB/day
+* Protocol overhead: ~20 MB/day
+Total: ~220 MB/day (85% reduction)
+```bash
+Transaction Propagation Network
+Normal Node Network:
+[Node A] --tx--> [Node B] --tx--> [Node C] --tx--> [Miner]
+   ↓               ↓               ↓
+[SPV Client]   [Lightning]    [Exchange]
+
+Blocks-Only Network:
+[Node A] --X--> [Blocks-Only] --X--> [Node C]
+               (breaks chain)
+```
+## Filter
+
+### permitbaremultisig=0
+ prevents relay of "bare multisig" transactions [bitcoin-dev](https://gnusha.org/pi/bitcoindev/Y1nIKjQC3DkiSGyw@erisian.com.au/) On mempool policy consistency and when set to false, transactions with bare multisig outputs will be rejected with reason "bare-multisig" https://github.com/bitcoin/bitcoin/blob/master/src/policy/policy.cpp
 
 ## RPC Authentication
 

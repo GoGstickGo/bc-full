@@ -11,4 +11,7 @@ type NodeStats struct {
 	OnionStatus     bool        `json:"onionStatus"`
 	Balance         float64     `json:"balance"`
 	Version         int32       `json:"version"`
+	MemPoolSize     int         `json:"memPoolSize"`
+	MemPoolBytes    int64       `json:"memPoolBytes"`
+	MemPoolFeeInfo  interface{} `json:"mempoolFeeInfo"`
 }

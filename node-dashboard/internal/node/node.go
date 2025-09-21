@@ -2,11 +2,14 @@ package node
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	bitcoinclient "node-dashboard/internal/client"
 	"node-dashboard/internal/models"
 	"node-dashboard/internal/websocket"
+
+	"github.com/btcsuite/btcd/btcjson"
 )
 
 // Service handles Bitcoin node data collection and processing
@@ -99,6 +102,66 @@ func (s *Service) fetchNodeStats() {
 	} else {
 		nodeStats.Balance = balance.ToBTC()
 	}
+
+	// Get mempool info using GetRawMempoolVerbose
+	mempoolInfo, err := s.client.GetRawMempoolVerbose()
+	if err != nil {
+		log.Printf("Error getting mempool info: %v", err)
+	} else {
+		// Count the number of transactions in the mempool
+		nodeStats.MemPoolSize = len(mempoolInfo)
+
+		// Calculate total size of all transactions
+		var totalSize int64
+		for _, tx := range mempoolInfo {
+			totalSize += int64(tx.Vsize)
+		}
+		nodeStats.MemPoolBytes = totalSize
+	}
+
+	feeEstimates := make(map[string]interface{})
+
+	// Get economical fee estimate
+	economicalFeeInfo, err := s.client.EstimateSmartFee(2, &btcjson.EstimateModeEconomical)
+	if err != nil {
+		if strings.Contains(err.Error(), "Fee estimation disabled") {
+			log.Println("Fee estimation is disabled on this node")
+			feeEstimates["economical"] = map[string]interface{}{
+				"error":   "Fee estimation disabled",
+				"feerate": nil,
+			}
+		} else {
+			log.Printf("Error getting economical fee estimate: %v", err)
+			feeEstimates["economical"] = map[string]interface{}{
+				"error":   err.Error(),
+				"feerate": nil,
+			}
+		}
+	} else {
+		feeEstimates["economical"] = economicalFeeInfo
+	}
+
+	// Get conservative fee estimate
+	conservativeFeeInfo, err := s.client.EstimateSmartFee(2, &btcjson.EstimateModeConservative)
+	if err != nil {
+		if strings.Contains(err.Error(), "Fee estimation disabled") {
+			log.Println("Conservative fee estimation is also disabled")
+			feeEstimates["conservative"] = map[string]interface{}{
+				"error":   "Fee estimation disabled",
+				"feerate": nil,
+			}
+		} else {
+			log.Printf("Error getting conservative fee estimate: %v", err)
+			feeEstimates["conservative"] = map[string]interface{}{
+				"error":   err.Error(),
+				"feerate": nil,
+			}
+		}
+	} else {
+		feeEstimates["conservative"] = conservativeFeeInfo
+	}
+
+	nodeStats.MemPoolFeeInfo = feeEstimates
 
 	nodeStats.LastUpdated = time.Now().Format(time.RFC3339)
 
